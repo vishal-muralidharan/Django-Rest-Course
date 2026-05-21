@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.forms.models import model_to_dict 
 import json
 
@@ -11,7 +11,9 @@ def api_home(request, **args):
     data = {}
 
     if model_data:
-        data = model_to_dict(model_data, fields=['id', 'title'])
+        data = model_to_dict(model_data, fields=['id', 'title', 'price'])
+        
+        json_data_str = json.dumps(data )
 
-    return JsonResponse(data)
+    return HttpResponse(data, headers={'content-type': 'application/json'})
 
