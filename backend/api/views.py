@@ -10,11 +10,12 @@ def api_home(request, **args):
     data = request.data
 
     serializer = ProductSerializer(data=request.data)
-    if serializer.is_valid():
+    if serializer.is_valid(raise_exception=True):
         # instance = serializer.save()
         print(serializer.data)
         return Response(serializer.data)
         # json_data_str = json.dumps(data )
+    return Response({'invalid': 'Data not good'}, status=400)
 
     # return HttpResponse(data, headers={'content-type': 'application/json'})
 
