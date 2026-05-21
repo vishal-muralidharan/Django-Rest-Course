@@ -3,6 +3,9 @@ from django.http import JsonResponse
 import json
 
 def api_home(request, **args):
+    print(request.GET) #URL Query Parameters
+    print(request.POST)
+
     body = request.body
     data = {}
 
@@ -13,10 +16,9 @@ def api_home(request, **args):
 
     print(data)
 
+    data['params'] = dict(request.GET)
     data['headers'] = dict(request.headers)
-    print(request.headers)
-
     data['content_type'] = request.content_type
 
-    return JsonResponse({'message': 'Django API Response'})
+    return JsonResponse(data)
 
