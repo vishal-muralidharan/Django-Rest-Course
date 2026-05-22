@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 class ProductMixinView(
+    mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     generics.GenericAPIView
@@ -23,8 +24,8 @@ class ProductMixinView(
         
         return self.list(request, *args, **kwargs)
 
-    def post():
-        pass
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 product_mixin_view = ProductMixinView.as_view()
 
