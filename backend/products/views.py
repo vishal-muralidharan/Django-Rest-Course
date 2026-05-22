@@ -1,10 +1,26 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import generics
+from rest_framework import generics, mixins
 
 from products.models import Product
 from products.serialisers import ProductSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
+class ProductMixinView(
+    mixins.ListModelMixin,
+    generics.GenericAPIView
+):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post():
+        pass
+
+product_mixin_view = ProductMixinView.as_view()
+
 
 class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
