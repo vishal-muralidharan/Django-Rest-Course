@@ -35,6 +35,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'name',
             'content',
             'price',
+            'public',
             'sale_price',
             'my_discount'
         ]
