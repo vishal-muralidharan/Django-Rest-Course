@@ -5,12 +5,17 @@ from .models import Product
 
 class ProductSerializer(serializers.ModelSerializer):
     my_discount = serializers.SerializerMethodField(read_only=True)
-    url = serializers.SerializerMethodField(read_only=True)
+    edit_url = serializers.SerializerMethodField(read_only=True)
+    url = serializers.HyperlinkedIdentityField(
+        view_name='product-detail',
+        lookup_field='pk'
+    )
 
     class Meta:
         model = Product
         fields = [
             'url',
+            'edit_url',
             'pk',
             'title',
             'content',
@@ -19,12 +24,11 @@ class ProductSerializer(serializers.ModelSerializer):
             'my_discount'
         ]
 
-    def get_url(self, obj):
-        # return f"/api/v2/products/{obj.pk}/"
+    def get_edit_url(self, obj):
         request = self.context.get("request")
         if request is None:
             return None
-        return reverse("products-detail", kwargs={"pk": obj.pk}, request=request)
+        return reverse("product-update", kwargs={"pk": obj.pk}, request=request)
 
     def get_my_discount(self, obj):
         if not hasattr(obj, 'id'):
