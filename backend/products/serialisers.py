@@ -27,10 +27,17 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        email = validated_data.pop('email')
+        email = validated_data.pop('email', None)
         obj = super().create(validated_data)
-        print(email, obj)
+        if email:
+            print(email, obj)
         return obj
+
+    def update(self, instance, validated_data):
+        email = validated_data.pop('email', None)
+        if email:
+            print(email)
+        return super().update(instance, validated_data)
 
     def get_edit_url(self, obj):
         request = self.context.get("request")
