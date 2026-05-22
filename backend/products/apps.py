@@ -9,5 +9,6 @@ class ProductsConfig(AppConfig):
         # ensure algolia registrations are imported when the app is ready
         try:
             import products.algolia  # noqa: F401
+            import products.index  # noqa: F401
         except Exception:
             pass
