@@ -11,6 +11,7 @@ class ProductSerializer(serializers.ModelSerializer):
         view_name='product-detail',
         lookup_field='pk'
     )
+    name = serializers.CharField(source='title', read_only=True)
     title = serializers.CharField(
         validators=[validate_title_no_hello, unique_product_title]
     )
@@ -22,6 +23,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'edit_url',
             'pk',
             'title',
+            'name',
             'content',
             'price',
             'sale_price',
