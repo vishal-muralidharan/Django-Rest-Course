@@ -50,6 +50,12 @@ class ProductListCreateAPIView(
     serializer_class = ProductSerializer
     authentication_classes = [authentication.SessionAuthentication, TokenAuthentication]
 
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        request = self.request
+        # print(request.user)
+        return qs.filter(user=request.user)
+
     def perform_create(self, serializer):
         # serializer.save(user=self.request.user)
         print(serializer.validated_data)

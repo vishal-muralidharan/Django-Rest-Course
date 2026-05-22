@@ -22,6 +22,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'url',
             'edit_url',
             'pk',
+            'user',
             'title',
             'name',
             'content',
