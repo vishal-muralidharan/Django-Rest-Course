@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'algoliasearch_django',
     'api',
     'products',
     'search',
@@ -137,4 +138,10 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 10,
+}
+
+# Algolia configuration (replace placeholders with your keys)
+ALGOLIA = {
+    'APPLICATION_ID': '79526950DZ',
+    'API_KEY': '1b20498011ae429d2c27d079118744dc',  # Your Write API Key
 }
