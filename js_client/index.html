@@ -3,6 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@8.16.1/themes/reset-min.css" integrity="sha256-JjDZSTIfC2bu8e2raNcoLrxsfd5vzOiD3wynjL61WCg=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@8.16.1/themes/satellite-min.css" integrity="sha256-3GSOHCYYGhoOEKO5qw+wcThMTdYrgbPELkzgF66zHRA=" crossorigin="anonymous">
     <title>Login</title>
 </head>
 <body>
@@ -15,15 +17,21 @@
 
     <div id="status"></div>
 
-    <!-- Search bar -->
-    <form id="search-form" style="margin-top:1rem;">
+    <form id="search-form" style="display:none" method="GET">
         <input type="text" name="q" placeholder="Search products..." />
         <input type="submit" value="Search" />
     </form>
+
+    <div id="searchbox"></div>
+    <div id="hits"></div>
+
     <div>
         <button id="btn-get-products">Get Products</button>
     </div>
     <div id="content" style="white-space: pre-wrap; margin-top:1rem;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.5.1/dist/algoliasearch-lite.umd.js" integrity="sha256-EXPXz4W6pQgfYY3yTpnDa3OH8/EPn16ciVsPQ/ypsjk=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.8.3/dist/instantsearch.production.min.js" integrity="sha256-LAGhRRdtVoD6RLo2qDQsU2mp+XVSciKRC8XPOBWmofM=" crossorigin="anonymous"></script>
 
     <script type="module" src="client.js"></script>
 </body>

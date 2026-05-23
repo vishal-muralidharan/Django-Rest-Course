@@ -2,8 +2,13 @@
 const contentContainer = document.getElementById('content-container') || document.getElementById('content');
 const loginForm = document.getElementById('login-form');
 const searchForm = document.getElementById('search-form');
+const searchBoxContainer = document.getElementById('searchbox');
+const hitsContainer = document.getElementById('hits');
 const baseEndpoint = "http://localhost:8000/api";
 const btnGetProducts = document.getElementById('btn-get-products');
+const appID = "79526950DZ";
+const apiKey = "1075fcded062a66ba9991cd9e98edef0";
+const indexName = "cfe_Product";
 
 function handleAuthData(authData, callback){
     if(!authData) return;
@@ -122,6 +127,37 @@ function handleSearch(event){
     .catch(err => console.error('search error', err));
 }
 
+function initializeAlgoliaSearch(){
+    const instantsearchLite = window["algoliasearch/lite"];
+    if(!instantsearchLite || typeof instantsearch === 'undefined'){
+        return;
+    }
+    if(!searchBoxContainer || !hitsContainer){
+        return;
+    }
+
+    const searchClient = instantsearchLite.liteClient(appID, apiKey);
+
+    const search = instantsearch({
+        indexName,
+        searchClient,
+    });
+
+    search.addWidgets([
+        instantsearch.widgets.searchBox({
+            container: "#searchbox",
+        }),
+        instantsearch.widgets.hits({
+            container: "#hits",
+            templates: {
+                item: '<div>{{ title }}<p>${{ price }}</p></div>'
+            },
+        }),
+    ]);
+
+    search.start();
+}
+
 function writeToContainer(data){
     if(contentContainer){
         contentContainer.innerHTML = "<pre>" + JSON.stringify(data, null, 4) + "</pre>";
@@ -147,3 +183,5 @@ if(btnGetProducts){
 if(searchForm){
     searchForm.addEventListener('submit', handleSearch);
 }
+
+initializeAlgoliaSearch();
