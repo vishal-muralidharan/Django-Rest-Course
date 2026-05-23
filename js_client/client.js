@@ -1,6 +1,8 @@
 const baseEndpoint = "http://localhost:8000/api";
 const loginForm = document.getElementById('login-form');
 const statusEl = document.getElementById('status');
+const contentContainer = document.getElementById('content');
+const btnGetProducts = document.getElementById('btn-get-products');
 
 function setStatus(msg, isError=false){
     statusEl.textContent = msg;
@@ -8,20 +10,23 @@ function setStatus(msg, isError=false){
 }
 
 function saveTokens(data){
+    if(!data) return;
     localStorage.setItem('jwt_access', data.access);
     localStorage.setItem('jwt_refresh', data.refresh);
+    // also keep the legacy keys for older code paths
+    localStorage.setItem('access', data.access);
+    localStorage.setItem('refresh', data.refresh);
 }
 
 // Backwards-compatible handler used by older promise-based codepaths
-export function handleAuthData(authData){
+export function handleAuthData(authData, callback){
     if(!authData) return;
-    // store both the new keys and the original simple keys used elsewhere
-    localStorage.setItem('jwt_access', authData.access);
-    localStorage.setItem('jwt_refresh', authData.refresh);
-    localStorage.setItem('access', authData.access);
-    localStorage.setItem('refresh', authData.refresh);
+    saveTokens(authData);
     setStatus('Login successful');
     console.log('handleAuthData saved tokens (compatible keys)');
+    if(callback && typeof callback === 'function'){
+        try{ callback(); } catch(e){ console.warn('callback error', e); }
+    }
 }
 
 function getAccess(){
@@ -40,22 +45,17 @@ function getAuthHeaders(){
 
 async function handleLogin(event){
     event.preventDefault();
-    const loginForm = event.target;
-    let loginFormData = new FormData(loginForm);
+    const loginFormEl = event.target;
+    let loginFormData = new FormData(loginFormEl);
     let loginObjectData = Object.fromEntries(loginFormData);
-    let bodyStr = JSON.stringify(loginObjectData);
-    const endpoint = `${baseEndpoint}/products/`;
-    const options = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: bodyStr
-    };
+    const bodyStr = JSON.stringify(loginObjectData);
+    const endpoint = `${baseEndpoint}/token/`;
+    const options = getFetchOptions('POST', loginObjectData);
     try{
         const res = await fetch(endpoint, options);
         console.log('Login response status:', res.status, res.statusText);
         console.log('Login response headers:');
         try{
-            // show a few headers that help debug CORS and auth
             console.log('access-control-allow-origin:', res.headers.get('access-control-allow-origin'));
             console.log('content-type:', res.headers.get('content-type'));
         } catch(e){ console.log('header inspect error', e); }
@@ -64,9 +64,8 @@ async function handleLogin(event){
         console.log('Login response body:', data);
 
         if(res.ok && data && data.access){
-            saveTokens(data);
-            // also save compatible keys for older code
-            handleAuthData(data);
+            // store tokens and then fetch product list
+            handleAuthData(data, getProductList);
             console.log('Saved tokens. Access length:', (data.access || '').length);
         } else if(res.status === 401){
             setStatus('Not authenticated (401): check credentials or CORS', true);
@@ -147,3 +146,43 @@ export async function authFetch(path, opts={}){
 
     return r.json();
 }
+
+// Utility: return consistent fetch options including Authorization and optional JSON body
+function getFetchOptions(method = null, jsObject = null){
+    return {
+        method: method === null ? 'GET' : method,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access') || localStorage.getItem('jwt_access')}`
+        },
+        body: jsObject ? JSON.stringify(jsObject) : null
+    };
+}
+
+function writeToContainer(data){
+    if(contentContainer){
+        contentContainer.innerHTML = "<pre>" + JSON.stringify(data, null, 4) + "</pre>";
+    }
+}
+
+function getProductList(){
+    const endpoint = `${baseEndpoint}/products/`;
+    const options = getFetchOptions();
+    fetch(endpoint, options)
+    .then(response => response.json())
+    .then(data => {
+        console.log('product list', data);
+        writeToContainer(data);
+    })
+    .catch(err => {
+        console.error('getProductList error', err);
+        setStatus('Failed to load products', true);
+    });
+}
+
+if(btnGetProducts){
+    btnGetProducts.addEventListener('click', getProductList);
+}
+
+// optionally expose getProductList for debugging
+export { getProductList };
