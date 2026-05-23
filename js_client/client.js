@@ -26,7 +26,7 @@ function handleLogin(event){
     const loginEndpoint = `${baseEndpoint}/token/`;
     let loginFormData = new FormData(loginForm);
     let loginObjectData = Object.fromEntries(loginFormData);
-    let bodyStr = JSON.stringify(loginObjectData);
+    let bodyStr = JSON.stringify(loginObjectData);      
     const options = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -67,7 +67,6 @@ function validateJWTToken(){
             .then(data => {
                 if(data && data.access){
                     localStorage.setItem('access', data.access);
-                    // optionally refresh UI or retry previous request
                     getProductList();
                 }
             })
