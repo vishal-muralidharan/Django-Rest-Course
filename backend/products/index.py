@@ -12,11 +12,12 @@ class ProductIndex(AlgoliaIndex):
         'content',
         'price',
         'user',
-        'public'
+        'public',
+        'get_tags_list'
     ]
 
     settings = {
         'searchableAttributes': ['title', 'content'],
-        'attributesForFaceting': ['public', 'user'],
+        'attributesForFaceting': ['public', 'user', 'get_tags_list'],
     }
     
