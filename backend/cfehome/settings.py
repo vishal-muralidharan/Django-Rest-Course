@@ -49,8 +49,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -58,15 +58,22 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+ROOT_URLCONF = 'cfehome.urls'
+
 # CORS settings - allow the local JS client to call the API
+# During local development allow all origins so the JS client can call the API.
+# In production restrict this to known origins.
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8811',
-    'https://localhost:8811',
+    'http://localhost:8111',
+    'https://localhost:8111',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://www.codingforentrepreneur.com',
 ]
-# Only apply CORS to API endpoints
-CORS_URLS_REGEX = r"^/api/.*$"
-
-ROOT_URLCONF = 'cfehome.urls'
 
 TEMPLATES = [
     {
