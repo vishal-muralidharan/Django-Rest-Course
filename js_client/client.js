@@ -1,6 +1,7 @@
 // Client code adapted from screenshots: simple JWT login, verify/refresh, and product list
 const contentContainer = document.getElementById('content-container') || document.getElementById('content');
 const loginForm = document.getElementById('login-form');
+const searchForm = document.getElementById('search-form');
 const baseEndpoint = "http://localhost:8000/api";
 const btnGetProducts = document.getElementById('btn-get-products');
 
@@ -91,6 +92,36 @@ function isTokenNotValid(jsonData){
     return false;
 }
 
+function handleSearch(event){
+    event.preventDefault();
+    if(!searchForm) return;
+    let formData = new FormData(searchForm);
+    let data = Object.fromEntries(formData);
+    let searchParams = new URLSearchParams(data);
+    const endpoint = `${baseEndpoint}/search/?${searchParams}`;
+    const options = getFetchOptions('GET', null);
+    fetch(endpoint, options)
+    .then(response => response.json())
+    .then(data => {
+        if(!isTokenNotValid(data) && contentContainer){
+            contentContainer.innerHTML = "";
+            if(data && data.hits){
+                let htmlStr = "";
+                for (let result of data.hits){
+                    htmlStr += "<li>" + (result.title || result._source?.title || JSON.stringify(result)) + "</li>";
+                }
+                contentContainer.innerHTML = htmlStr;
+                if(data.hits.length === 0){
+                    contentContainer.innerHTML = "<p>No results found</p>";
+                }
+            } else {
+                contentContainer.innerHTML = "<p>No results found</p>";
+            }
+        }
+    })
+    .catch(err => console.error('search error', err));
+}
+
 function writeToContainer(data){
     if(contentContainer){
         contentContainer.innerHTML = "<pre>" + JSON.stringify(data, null, 4) + "</pre>";
@@ -111,4 +142,8 @@ function getProductList(){
 if(btnGetProducts){
     btnGetProducts.addEventListener('click', getProductList);
 
+}
+
+if(searchForm){
+    searchForm.addEventListener('submit', handleSearch);
 }
