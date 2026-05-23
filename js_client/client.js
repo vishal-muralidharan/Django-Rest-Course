@@ -1,14 +1,14 @@
 // Client code adapted from screenshots: simple JWT login, verify/refresh, and product list
 const contentContainer = document.getElementById('content-container') || document.getElementById('content');
 const loginForm = document.getElementById('login-form');
-const searchForm = document.getElementById('search-form');
 const searchBoxContainer = document.getElementById('searchbox');
+const userListContainer = document.getElementById('user-list');
+const publicListContainer = document.getElementById('public-list');
 const hitsContainer = document.getElementById('hits');
 const baseEndpoint = "http://localhost:8000/api";
-const btnGetProducts = document.getElementById('btn-get-products');
 const appID = "79526950DZ";
 const apiKey = "1075fcded062a66ba9991cd9e98edef0";
-const indexName = "cfe_Product";
+const indexName = "Product";
 
 function handleAuthData(authData, callback){
     if(!authData) return;
@@ -97,46 +97,21 @@ function isTokenNotValid(jsonData){
     return false;
 }
 
-function handleSearch(event){
-    event.preventDefault();
-    if(!searchForm) return;
-    let formData = new FormData(searchForm);
-    let data = Object.fromEntries(formData);
-    let searchParams = new URLSearchParams(data);
-    const endpoint = `${baseEndpoint}/search/?${searchParams}`;
-    const options = getFetchOptions('GET', null);
-    fetch(endpoint, options)
-    .then(response => response.json())
-    .then(data => {
-        if(!isTokenNotValid(data) && contentContainer){
-            contentContainer.innerHTML = "";
-            if(data && data.hits){
-                let htmlStr = "";
-                for (let result of data.hits){
-                    htmlStr += "<li>" + (result.title || result._source?.title || JSON.stringify(result)) + "</li>";
-                }
-                contentContainer.innerHTML = htmlStr;
-                if(data.hits.length === 0){
-                    contentContainer.innerHTML = "<p>No results found</p>";
-                }
-            } else {
-                contentContainer.innerHTML = "<p>No results found</p>";
-            }
-        }
-    })
-    .catch(err => console.error('search error', err));
-}
-
 function initializeAlgoliaSearch(){
-    const instantsearchLite = window["algoliasearch/lite"];
-    if(!instantsearchLite || typeof instantsearch === 'undefined'){
+    const algoliaLite = window["algoliasearch/lite"] || window.algoliasearch || window["algoliasearch"];
+    if(!algoliaLite || typeof instantsearch === 'undefined'){
         return;
     }
     if(!searchBoxContainer || !hitsContainer){
         return;
     }
 
-    const searchClient = instantsearchLite.liteClient(appID, apiKey);
+    const algoliasearch = typeof algoliaLite.liteClient === 'function' ? algoliaLite.liteClient : algoliaLite;
+    if(typeof algoliasearch !== 'function'){
+        return;
+    }
+
+    const searchClient = algoliasearch(appID, apiKey);
 
     const search = instantsearch({
         indexName,
@@ -147,10 +122,25 @@ function initializeAlgoliaSearch(){
         instantsearch.widgets.searchBox({
             container: "#searchbox",
         }),
+        instantsearch.widgets.clearRefinements({
+            container: "#clear-refinements"
+        }),
+        instantsearch.widgets.refinementList({
+            container: "#user-list",
+            attribute: "user"
+        }),
+        instantsearch.widgets.refinementList({
+            container: "#public-list",
+            attribute: "public"
+        }),
         instantsearch.widgets.hits({
             container: "#hits",
             templates: {
-                item: '<div>{{ title }}<p>${{ price }}</p></div>'
+                item: '<div>' +
+                    '<div>{{#helpers.highlight}}{"attribute":"title"}{{/helpers.highlight}}</div>' +
+                    '<div>{{#helpers.highlight}}{"attribute":"body"}{{/helpers.highlight}}</div>' +
+                    '<p>{{ user }}</p><p>${{ price }}</p>' +
+                '</div>'
             },
         }),
     ]);
@@ -162,26 +152,6 @@ function writeToContainer(data){
     if(contentContainer){
         contentContainer.innerHTML = "<pre>" + JSON.stringify(data, null, 4) + "</pre>";
     }
-}
-
-function getProductList(){
-    const endpoint = `${baseEndpoint}/products/`;
-    const options = getFetchOptions(null, null);
-    fetch(endpoint, options)
-    .then(response => response.json())
-    .then(data => {
-        writeToContainer(data);
-    })
-    .catch(err => { console.error('getProductList error', err); });
-}
-
-if(btnGetProducts){
-    btnGetProducts.addEventListener('click', getProductList);
-
-}
-
-if(searchForm){
-    searchForm.addEventListener('submit', handleSearch);
 }
 
 initializeAlgoliaSearch();
