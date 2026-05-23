@@ -25,13 +25,13 @@ class SearchListOldView(generics.ListAPIView):
 
 class SearchListView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
+        user = None
+        if request.user.is_authenticated:
+            user = request.user.username
         q = request.GET.get('q')
-        results = {}
-        if q:
-            # allow passing multiple tags as repeated query params: ?tags=foo&tags=bar
-            tags = request.GET.getlist('tags')
-            if tags:
-                results = client.perform_search(q, tags=tags)
-            else:
-                results = client.perform_search(q)
+        public = str(request.GET.get('public')) != '0'
+        tag = request.GET.get('tag') or None
+        if not q:
+            return Response('', status=400)
+        results = client.perform_search(q, tags=tag, user=user, public=public)
         return Response(results)

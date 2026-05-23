@@ -21,10 +21,14 @@ def get_index(index_name=None):
 def perform_search(query, **kwargs):
     index = get_index()
     params = {}
-    tags = ""
-    if "tags" in kwargs:
-        tags = kwargs.pop("tags") or []
-        if len(tags) != 0:
-            params['tagFilters'] = tags
+    tags = kwargs.pop("tags", None)
+    if tags:
+        params['tagFilters'] = tags
+
+    index_filters = [f"{key}:{str(value).lower() if isinstance(value, bool) else value}" for key, value in kwargs.items()]
+    if index_filters:
+        params['facetFilters'] = index_filters
+
+    print(params)
     results = index.search(query, params)
     return results
