@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, mixins, permissions, authentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from products.models import Product
 from products.serialisers import ProductSerializer
@@ -50,7 +51,8 @@ class ProductListCreateAPIView(
 ):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    authentication_classes = [authentication.SessionAuthentication, TokenAuthentication]
+    # allow session auth, DRF token auth (custom) and JWT auth
+    authentication_classes = [authentication.SessionAuthentication, JWTAuthentication]
 
     def perform_create(self, serializer):
         # serializer.save(user=self.request.user)
