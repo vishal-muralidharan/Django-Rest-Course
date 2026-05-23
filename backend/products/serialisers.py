@@ -22,6 +22,9 @@ class ProductSerializer(serializers.ModelSerializer):
     title = serializers.CharField(
         validators=[validate_title_no_hello, unique_product_title]
     )
+    body = serializers.CharField(source='content', allow_blank=True, required=False)
+    # Accept legacy 'content' key on input as well (maps to the same model field)
+    content = serializers.CharField(source='content', write_only=True, required=False)
 
     class Meta:
         model = Product
@@ -33,7 +36,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'related_products',
             'title',
             'name',
-            'content',
+            'body',
             'price',
             'public',
             'sale_price',

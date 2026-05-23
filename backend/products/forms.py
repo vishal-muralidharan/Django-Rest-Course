@@ -6,3 +6,6 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ['title', 'content', 'price']
+        labels = {
+            'content': 'body'
+        }

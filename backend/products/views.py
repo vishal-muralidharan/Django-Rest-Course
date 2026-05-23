@@ -57,12 +57,12 @@ class ProductListCreateAPIView(
         print(serializer.validated_data)
 
         title = serializer.validated_data.get('title')
-        content = serializer.validated_data.get('content') or None
+        body = serializer.validated_data.get('body') or None
 
-        if content is None:
-            content = title
+        if body is None:
+            body = title
 
-        serializer.save(user=self.request.user, content=content)
+        serializer.save(user=self.request.user, content=body)
 
 product_list_create_view = ProductListCreateAPIView.as_view()
 
@@ -135,11 +135,11 @@ def product_alt_view(request, pk=None, *args):
         serializer = ProductSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             title = serializer.validated_data.get('title')
-            content = serializer.validated_data.get('content') or None
+            body = serializer.validated_data.get('body') or None
 
-            if content is None:
-                content = title
+            if body is None:
+                body = title
 
-            serializer.save(content=content)
+            serializer.save(content=body)
             return Response(serializer.data)
         return Response({'invalid': 'Data not good'}, status=400)
