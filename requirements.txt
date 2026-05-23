@@ -4,3 +4,4 @@ pyyaml
 requests
 django-cors-headers
 algoliasearch-django>=2.0,<3.0
+djangorestframework-simplejwt
