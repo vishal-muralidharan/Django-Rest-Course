@@ -11,13 +11,14 @@ class ProductIndex(AlgoliaIndex):
     fields = [
         'title',
         'content',
+        'body',
         'price',
         'user',
         'public'
     ]
-
+    
     settings = {
-        'searchableAttributes': ['title', 'content'],
+        'searchableAttributes': ['title', 'content', 'body'],
         'attributesForFaceting': ['public', 'user'],
     }
      
