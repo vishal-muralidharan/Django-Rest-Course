@@ -20,5 +20,11 @@ def get_index(index_name=None):
 
 def perform_search(query, **kwargs):
     index = get_index()
-    results = index.search(query)
+    params = {}
+    tags = ""
+    if "tags" in kwargs:
+        tags = kwargs.pop("tags") or []
+        if len(tags) != 0:
+            params['tagFilters'] = tags
+    results = index.search(query, params)
     return results

@@ -28,5 +28,10 @@ class SearchListView(generics.GenericAPIView):
         q = request.GET.get('q')
         results = {}
         if q:
-            results = client.perform_search(q)
+            # allow passing multiple tags as repeated query params: ?tags=foo&tags=bar
+            tags = request.GET.getlist('tags')
+            if tags:
+                results = client.perform_search(q, tags=tags)
+            else:
+                results = client.perform_search(q)
         return Response(results)
